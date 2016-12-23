@@ -16,7 +16,7 @@ public class CuckooMap<K, V> implements Map<K, V> {
         return hash;
     }
     private int hash2(Object key) {
-        int hash = (key.hashCode() * 1291) % mass[0].length;
+        int hash = (key.hashCode() * 1291) % mass[1].length;
         if (hash < 0) {
             hash += mass[1].length;
         }
@@ -28,13 +28,6 @@ public class CuckooMap<K, V> implements Map<K, V> {
         } else {
             return hash2(key);
         }
-    }
-
-    private int invertHashInt(int hashInt) {
-        if (hashInt == 0) {
-            return 1;
-        }
-        return 0;
     }
 
     public CuckooMap() {
@@ -74,18 +67,17 @@ public class CuckooMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        Entry<Integer, Integer> found = findPos(key);
-        return found != null && (found.getKey().equals(0) || found.getKey().equals(1));
+        return findPos(key) != null;
     }
 
     @Override
     public boolean containsValue(Object value) {
-        for (Entry<? extends Object, ? extends Object> e : mass[0]) {
+        for (Entry e : mass[0]) {
             if (e != null && e.getValue().equals(value)) {
                 return true;
             }
         }
-        for (Entry<? extends Object, ? extends Object> e : mass[1]) {
+        for (Entry e : mass[1]) {
             if (e != null && e.getValue().equals(value)) {
                 return true;
             }
@@ -121,13 +113,6 @@ public class CuckooMap<K, V> implements Map<K, V> {
         }
 
         Entry<K, V> startingElem = new AbstractMap.SimpleEntry<>(key, value);
-        for (int i = 0; i < 2; i++) {
-            if (mass[i][hash(i, key)] == null) {
-                mass[i][hash(i, key)] = startingElem;
-                size++;
-                return value;
-            }
-        }
         size++;
         int hashMass = 0;
         Entry<K, V> e = startingElem, lastE;
@@ -140,7 +125,12 @@ public class CuckooMap<K, V> implements Map<K, V> {
                 put(key, value);
                 break;
             }
-            hashMass = invertHashInt(hashMass);
+
+            if (hashMass == 0) {
+                hashMass = 1;
+            } else {
+                hashMass = 0;
+            }
         } while (e != null);
 
         return value;
@@ -165,7 +155,7 @@ public class CuckooMap<K, V> implements Map<K, V> {
     public void putAll(@NotNull Map<? extends K, ? extends V> m) {
         Entry<K, V>[] s = (Entry<K, V>[]) m.entrySet().toArray();
         for (Entry<K, V> e : s) {
-            this.put(e.getKey(), e.getValue());
+            put(e.getKey(), e.getValue());
         }
     }
 
