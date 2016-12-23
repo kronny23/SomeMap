@@ -1,5 +1,3 @@
-import org.intellij.lang.annotations.Flow;
-import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class CuckooMap<K, V> implements Map<K, V> {
@@ -105,7 +103,7 @@ public class CuckooMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public V put(@Flow(target = "this.keys", targetIsContainer = true) K key, @Flow(target = "this.values", targetIsContainer = true) V value) {
+    public V put(K key, V value) {
         Entry<Integer, Integer> found = findPos(key);
         if (found != null) {
             mass[found.getKey()][found.getValue()].setValue(value);
@@ -152,7 +150,7 @@ public class CuckooMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public void putAll(@NotNull Map<? extends K, ? extends V> m) {
+    public void putAll(Map<? extends K, ? extends V> m) {
         Entry<K, V>[] s = (Entry<K, V>[]) m.entrySet().toArray();
         for (Entry<K, V> e : s) {
             put(e.getKey(), e.getValue());
@@ -171,7 +169,6 @@ public class CuckooMap<K, V> implements Map<K, V> {
         init();
     }
 
-    @NotNull
     @Override
     public Set<K> keySet() {
         Set<K> set = new HashSet<>();
@@ -187,7 +184,6 @@ public class CuckooMap<K, V> implements Map<K, V> {
         return set;
     }
 
-    @NotNull
     @Override
     public Collection<V> values() {
         List<V> list = new ArrayList<>();
@@ -203,7 +199,6 @@ public class CuckooMap<K, V> implements Map<K, V> {
         return list;
     }
 
-    @NotNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, V>> set = new HashSet<>();
